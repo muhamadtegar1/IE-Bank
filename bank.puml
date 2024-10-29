@@ -1,0 +1,158 @@
+@startuml bank
+' Entitas Utama dengan atribut dan tipe data
+entity Bank {
+    + id_bank: int <<PK>>
+    --
+    + nama: string
+    + alamat: string
+}
+
+entity Direktur {
+    + email: string <<PK>>
+    --
+    + id_bank <<FK>>
+    --
+    + nama: string
+    + alamat: string
+}
+
+entity Rekening {
+    + no_rekening: int <<PK>>
+    --
+    + id_bank <<FK>>
+    + id_nasabah <<FK>>
+    --
+    + nama: string
+    + saldo: float
+}
+
+entity Transaksi {
+    + id_transaksi: int <<PK>>
+    --
+    + id_nasabah: int <<FK>>
+    --
+    + jumlah: float
+    + jenis: string
+}
+
+entity Nasabah {
+    + id_nasabah: int <<PK>>
+    --
+    + id_karyawan: int <<FK>>
+    --
+    + nama: string
+    + alamat: string
+}
+
+entity Karyawan {
+    + id_karyawan: int <<PK>>
+    --
+    + nama: string
+    + bidang_kerja: string
+}
+
+entity CabangBank {
+    + id_cabang: int <<PK>>
+    --
+    + id_bank <<FK>>
+    --
+    + nama: string
+    + alamat: string
+}
+
+object Mempekerjakan {
+    id_karyawan : int <<FK>>
+    id_bank : int <<FK>>
+    --
+    tanggal_bergabung : date
+}
+
+object Menawarkan {
+    id_karyawan : int <<FK>>
+    id_nasabah : int <<FK>>
+    --
+    produk_bank : string
+}
+
+' Sub-Entity dari Karyawan
+entity Teller {
+    + no_teller: int <<PK>>
+    --
+    + id_karyawan: int <<FK>>
+    --
+    + jam_kerja: date
+    + jumlah_transaksi: float
+}
+
+entity Manajer {
+    + id_karyawan: int <<PK>>
+    --
+    + departemen: string
+    + jumlah_staf: int
+    + tingkat_manejerial: string
+}
+
+' Relasi One-to-One antara Bank dan Direktur
+Bank ||--|| Direktur
+note on link
+MEMILIKI
+end note
+
+' Relasi One-to-Many antara Bank dan CabangBank (Weak Entity)
+Bank ||--o{ CabangBank 
+note on link
+MEMILIKI
+end note
+
+' Relasi One-to-Many antara Bank dan Rekening
+Bank ||--o{ Rekening
+note on link
+MENYEDIAKAN
+end note
+
+' Relasi One-to-Many antara Nasabah dan Rekening
+Nasabah ||--|{ Rekening
+note on link
+MEMILIKI
+end note
+
+' Relasi One-to-Many antara Nasabah dan Transaksi
+Nasabah ||--|{ Transaksi
+note on link
+MELAKUKAN
+end note
+
+' Relasi Many-to-Many antara Karyawan dan Nasabah
+Karyawan }o--o{ Nasabah
+note on link
+MELAYANI
+end note
+
+Bank ||-- Mempekerjakan
+Karyawan }|-- Mempekerjakan
+
+Karyawan }|-- Menawarkan
+Nasabah }|-- Menawarkan
+
+' Sub-Entity Karyawan dengan generalisasi
+Karyawan ||--o| Teller
+note on link
+    ISA
+end note
+Karyawan ||--o| Manajer
+note on link
+    ISA
+end note
+
+' Unary Relationship untuk Nasabah (Referensi diri sendiri)
+Nasabah ||--|{ Nasabah 
+note on link
+MEREFERENSIKAN
+end note
+
+' Multi-Relationship
+Transaksi ||--|| Rekening 
+note on link
+MENGGUNAKAN
+end note
+@enduml
